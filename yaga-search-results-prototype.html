@@ -3001,6 +3001,9 @@ body{
     toast.style.setProperty('--toast-duration', (visibleMs / 1000) + 's');
     void toast.offsetWidth;
     toast.classList.add('show');
+    // Warning toast stays open until the user explicitly closes it — forces acknowledgement.
+    // Save / unsave toasts still auto-dismiss after their duration.
+    if(variant === 'warning') return;
     toastHideTimer = setTimeout(() => {
       // Celebratory green confetti burst — only for the "saved" toast, not warning or removal ones
       if(splash) toast.classList.add('is-splashing');
