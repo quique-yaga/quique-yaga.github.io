@@ -2829,13 +2829,19 @@ body{
     });
     return JSON.stringify(state);
   }
-  // After any filter / sort change, drop the saved state if the current search no longer matches it.
+  // After any filter / sort change, drop the saved state if the current search no longer matches it,
+  // and surface a toast so the user knows the saved search is now stale and can re-save.
   function refreshSavedState(){
     if(!searchSaved) return;
     if(serializeSearchState() !== savedSnapshot){
       searchSaved = false;
       savedSnapshot = null;
       saveBtn.classList.remove('saved');
+      showSaveToast({
+        message: 'Filters changed. Re-save to update your saved search.',
+        splash: false,
+        duration: 4000,    // long enough to read, shorter than the celebratory save toast
+      });
     }
   }
   // Walk the currently committed selections and produce a [{name, value}] list for the save sheet
