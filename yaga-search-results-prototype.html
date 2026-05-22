@@ -2372,16 +2372,10 @@ body{
       return;
     }
     closeSheetVisual();
-    if(currentOpt === 1){
-      row.innerHTML = buildOption1();
-    } else if(currentOpt === 2){
-      row.innerHTML = buildOption2();
-    } else {
-      row.innerHTML = '';
-    }
-    wireChips();
+    // Animate the chip row when filters change so chips slide between active / inactive
+    // groups (and Sort jumps to the leftmost active slot when modified) without teleporting.
+    rebuildChipsWithFlip();
     if(currentOpt <= 2) row.scrollLeft = 0;
-    updateFilterChip();
     updateResultsCount();
     if(typeof refreshSavedState === 'function') refreshSavedState();
   }
@@ -2774,14 +2768,45 @@ body{
       if(key === 'category') return k !== 'category' && !k.startsWith('cat-');
       return k !== key;
     });
-    // Rebuild the chip row so this chip can drop back to its inactive state (or disappear in Option 2)
+    // Rebuild the chip row with a slide animation so the cleared chip glides to its new slot
+    // (back into the inactive group, or out of view entirely in Option 2) instead of teleporting.
+    rebuildChipsWithFlip();
+    updateResultsCount();
+    if(typeof refreshSavedState === 'function') refreshSavedState();
+  }
+
+  // ─── Rebuild the chip row with a 150ms FLIP slide so chips glide to their new slot
+  // instead of teleporting when they swap between the active and inactive groups. ───
+  function rebuildChipsWithFlip(){
+    // FIRST: snapshot each chip's current left coordinate by its data-filter key
+    const before = {};
+    row.querySelectorAll('.chip').forEach(chip => {
+      const key = chip.dataset.filter;
+      if(key) before[key] = chip.getBoundingClientRect().left;
+    });
+    // LAST: rebuild and rewire
     if(currentOpt === 1)      row.innerHTML = buildOption1();
     else if(currentOpt === 2) row.innerHTML = buildOption2();
     else                      row.innerHTML = '';
     wireChips();
     updateFilterChip();
-    updateResultsCount();
-    if(typeof refreshSavedState === 'function') refreshSavedState();
+    // INVERT: place each surviving chip at its previous left via a transform — no transition yet
+    row.querySelectorAll('.chip').forEach(chip => {
+      const key = chip.dataset.filter;
+      if(!key || before[key] === undefined) return;
+      const dx = before[key] - chip.getBoundingClientRect().left;
+      if(dx === 0) return;
+      chip.style.transition = 'none';
+      chip.style.transform = `translateX(${dx}px)`;
+    });
+    // PLAY: on the next frame, drop the transforms with a smooth ease so the chips slide home
+    requestAnimationFrame(() => {
+      row.querySelectorAll('.chip').forEach(chip => {
+        if(!chip.style.transform) return;
+        chip.style.transition = 'transform 150ms cubic-bezier(.2,.8,.2,1)';
+        chip.style.transform = '';
+      });
+    });
   }
 
   // ─── Wire chips to open the right sheet ───
