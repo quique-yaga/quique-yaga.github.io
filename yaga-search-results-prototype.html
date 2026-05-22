@@ -484,6 +484,52 @@ body{
 .toggle-switch.on::after{transform:translateX(16px);}
 .toggle-switch:hover{filter:brightness(.97);}
 
+/* ─── First-visit coachmark / tooltip pointing at the save-search bookmark ─── */
+.coachmark{
+  position:absolute;
+  top:124px;            /* sits just below the topbar */
+  right:14px;
+  width:270px;
+  background:#171413;
+  color:#fff;
+  border-radius:16px;
+  padding:20px 24px;
+  z-index:40;
+  box-shadow:0 12px 28px rgba(0,0,0,.18);
+  font-family:'Roboto',sans-serif;
+  animation:coachmarkIn .25s cubic-bezier(.2,.8,.2,1);
+}
+.coachmark[hidden]{display:none;}
+.coachmark-arrow{
+  position:absolute;
+  top:-9px;
+  right:28px;            /* tip lands under the bookmark icon */
+  width:18px;height:18px;
+  background:#171413;
+  transform:rotate(45deg);
+  border-radius:3px 0 0 0;
+}
+.coachmark-text{
+  font-size:16px;line-height:24px;
+  margin:0 0 16px 0;
+  color:#fff;
+  letter-spacing:.1px;
+}
+.coachmark-btn{
+  background:#fff;color:#171413;
+  border:none;border-radius:9999px;
+  padding:8px 22px;
+  font-family:'Roboto',sans-serif;
+  font-size:14px;line-height:20px;font-weight:500;
+  cursor:pointer;
+  transition:background .12s ease-out;
+}
+.coachmark-btn:hover{background:#F2F2F3;}
+@keyframes coachmarkIn{
+  from { opacity:0; transform:translateY(-4px) scale(.98); }
+  to   { opacity:1; transform:translateY(0)    scale(1);   }
+}
+
 /* ─── Snackbar / Toast — confirms the search was saved, with a count-down progress bar ─── */
 .toast{
   position:absolute;
@@ -1133,6 +1179,14 @@ body{
         <button class="icon-circle" id="saveSearchBtn" aria-label="Save search">
           <span class="material-symbols-rounded">bookmark</span>
         </button>
+      </div>
+
+      <!-- First-visit coachmark — points at the save-search bookmark in the topbar.
+           Dismissed for good after the user taps "Got it" (state persisted in localStorage). -->
+      <div class="coachmark" id="coachmark" hidden>
+        <div class="coachmark-arrow"></div>
+        <p class="coachmark-text">Now you can save your searches and open them from the search bar.</p>
+        <button class="coachmark-btn" id="coachmarkBtn">Got it</button>
       </div>
 
       <!-- Scrollable area: chips, results count and grid scroll together;
@@ -2688,6 +2742,16 @@ body{
   }
 
   setOption(1);
+
+  // ─── Coachmark for the save-search feature ───────────────────
+  // TESTING MODE: always show on every page load (ignore the localStorage "seen" flag)
+  // so the tooltip can be demoed without needing to clear storage between visits.
+  const coachmark = document.getElementById('coachmark');
+  const coachmarkBtn = document.getElementById('coachmarkBtn');
+  coachmark.hidden = false;
+  coachmarkBtn.addEventListener('click', () => {
+    coachmark.hidden = true;
+  });
 
   // ─── Save-search sheet ──────────────────────────────
   const saveBtn     = document.getElementById('saveSearchBtn');
