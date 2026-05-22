@@ -575,7 +575,8 @@ body{
   to   { opacity:1; transform:translateY(0)    scale(1);   }
 }
 
-/* ─── "Search & Results" info sheet — separate from filter sheets, explains the feature ─── */
+/* ─── "Search & Results" info sheet — separate from filter sheets, explains the feature.
+   Padding matches the save-search sheet: 24px sides, 28px bottom, 20px gap between blocks. ─── */
 #infoScrim{z-index:18;}
 .info-sheet{
   position:absolute;left:0;right:0;bottom:0;
@@ -584,14 +585,13 @@ body{
   transform:translateY(100%);
   transition:transform .25s cubic-bezier(.2,.8,.2,1);
   z-index:19;
-  padding:8px 0 28px;
-  display:flex;flex-direction:column;
-  max-height:88%;
+  padding:24px 24px 28px;
+  display:flex;flex-direction:column;gap:20px;
+  max-height:92%;
 }
 .info-sheet.open{transform:translateY(0);}
 .info-sheet-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:16px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
 }
 .info-sheet-header h3{
   font-family:'Roboto',sans-serif;
@@ -599,7 +599,6 @@ body{
   color:var(--text-primary);
 }
 .info-sheet-body{
-  padding:8px 24px 0;
   display:flex;flex-direction:column;gap:20px;
   overflow-y:auto;
 }
