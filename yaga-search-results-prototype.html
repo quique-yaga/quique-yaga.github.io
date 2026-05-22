@@ -1510,7 +1510,12 @@ body{
   }
 
   function getFilterValuePreview(filterKey){
-    if(filterKey === 'sort') return getSortValueLabel();
+    if(filterKey === 'sort'){
+      // Only surface the sort value once the user has changed it from the default — keeps
+      // the Filter hub quiet for sort just like the Sort chip in the row.
+      const sortId = selections.sort && selections.sort.size > 0 ? [...selections.sort][0] : DEFAULT_SORT_ID;
+      return sortId === DEFAULT_SORT_ID ? '' : getSortValueLabel();
+    }
     if(filterKey === 'price'){
       const c = selections.priceRange;
       if(!c) return '';
