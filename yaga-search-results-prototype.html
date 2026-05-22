@@ -217,7 +217,8 @@ body{
 .chip.has-filters .badge{display:inline-flex;}
 
 /* Inline close (X) icon — only visible on category/filter chips that currently have a selection.
-   Parent .chip has gap:6px and the icon has 2px of internal padding, giving 8px from the label edge to the X glyph. */
+   Parent .chip has gap:6px and the icon has 2px of internal padding, giving 8px from the label edge to the X glyph.
+   A ::before pseudo-element extends the tap surface to ~32×36 px without growing the visual or pushing siblings. */
 .chip-close{
   display:none;
   font-size:16px;
@@ -227,7 +228,15 @@ body{
   cursor:pointer;
   border-radius:50%;
   padding:2px;
+  position:relative;
   transition:background .12s ease-out;
+}
+.chip-close::before{
+  content:"";
+  position:absolute;
+  /* Symmetric on top/bottom/right (out into the chip's right padding and beyond);
+     trimmed on left so the tap area doesn't reach into the label text. */
+  top:-8px;right:-8px;bottom:-8px;left:-4px;
 }
 .chip.has-filters .chip-close{display:inline-flex;align-items:center;justify-content:center;}
 .chip-close:hover{background:rgba(255,255,255,0.18);}
