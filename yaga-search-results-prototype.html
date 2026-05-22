@@ -520,8 +520,7 @@ body{
   z-index:40;
   box-shadow:0 12px 28px rgba(0,0,0,.18);
   font-family:'Roboto',sans-serif;
-  animation:coachmarkIn .55s cubic-bezier(.34,1.56,.64,1);
-  transform-origin:top right;        /* bounce anchors near the arrow / bookmark icon */
+  animation:coachmarkIn .25s cubic-bezier(.2,.8,.2,1);
 }
 .coachmark[hidden]{display:none;}
 .coachmark-arrow{
@@ -550,10 +549,8 @@ body{
 }
 .coachmark-btn:hover{background:#F2F2F3;}
 @keyframes coachmarkIn{
-  0%   { opacity:0; transform:translateY(-12px) scale(.78); }
-  55%  { opacity:1; transform:translateY(2px)   scale(1.06); }
-  75%  {            transform:translateY(-1px)  scale(.98); }
-  100% { opacity:1; transform:translateY(0)     scale(1);   }
+  from { opacity:0; transform:translateY(-4px) scale(.98); }
+  to   { opacity:1; transform:translateY(0)    scale(1);   }
 }
 
 /* ─── Snackbar / Toast — confirms the search was saved, with a count-down progress bar ─── */
