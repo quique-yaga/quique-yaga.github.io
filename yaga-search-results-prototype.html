@@ -1506,7 +1506,8 @@ body{
       curKey = catParentMap[curKey];
     }
     parentTitles.push(opt.label);
-    return parentTitles.join(', ');
+    // Chevron-separated path — signals parent → child hierarchy rather than enumeration.
+    return parentTitles.join(' › ');
   }
 
   function getFilterValuePreview(filterKey){
