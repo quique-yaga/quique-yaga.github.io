@@ -487,7 +487,7 @@ body{
 /* ─── First-visit coachmark / tooltip pointing at the save-search bookmark ─── */
 .coachmark{
   position:absolute;
-  top:124px;            /* sits just below the topbar */
+  top:122px;            /* sits just below the topbar, 2px closer to the bookmark icon */
   right:14px;
   width:270px;
   background:#171413;
@@ -503,7 +503,7 @@ body{
 .coachmark-arrow{
   position:absolute;
   top:-9px;
-  right:28px;            /* tip lands under the bookmark icon */
+  right:21px;            /* arrow centered horizontally on the bookmark icon's center */
   width:18px;height:18px;
   background:#171413;
   transform:rotate(45deg);
@@ -1185,7 +1185,7 @@ body{
            Dismissed for good after the user taps "Got it" (state persisted in localStorage). -->
       <div class="coachmark" id="coachmark" hidden>
         <div class="coachmark-arrow"></div>
-        <p class="coachmark-text">Now you can save your searches and open them from the search bar.</p>
+        <p class="coachmark-text">Save your searches and open them from the search bar.</p>
         <button class="coachmark-btn" id="coachmarkBtn">Got it</button>
       </div>
 
