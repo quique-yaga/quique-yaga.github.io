@@ -2890,9 +2890,12 @@ body{
   //   - not saved → open the save sheet so the user can pick notification preferences
   //   - already saved → un-save immediately and show the "removed" toast
   saveBtn.addEventListener('click', () => {
-    // If the onboarding coachmark is open, tapping the bookmark counts as acknowledgement
-    // and skips the "Got it" step — the user clearly knows what the icon does now.
-    if(!coachmark.hidden) hideCoachmark();
+    // If the onboarding coachmark is open, tapping the bookmark only acknowledges the tip
+    // (same as the "Got it" button). The Save sheet does NOT open on this first tap.
+    if(!coachmark.hidden){
+      hideCoachmark();
+      return;
+    }
     if(searchSaved){
       searchSaved = false;
       savedSnapshot = null;
