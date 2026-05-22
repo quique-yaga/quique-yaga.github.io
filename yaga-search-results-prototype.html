@@ -631,6 +631,60 @@ body{
   text-decoration:underline;
   text-underline-offset:3px;
 }
+/* Inline preview — mini topbar mock with an animated arrow pointing at the bookmark icon */
+.info-preview{
+  margin-top:12px;
+  background:var(--neutral-50);
+  border-radius:12px;
+  padding:12px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.info-preview-topbar{
+  display:flex;align-items:center;gap:8px;
+}
+.info-preview-back{
+  width:28px;height:28px;border-radius:50%;
+  background:#fff;border:1px solid var(--neutral-200);
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:18px;color:var(--text-primary);
+  flex-shrink:0;
+}
+.info-preview-search{
+  flex:1;height:28px;
+  background:#fff;border-radius:9999px;
+  padding:0 10px;
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:'Roboto',sans-serif;font-size:12px;color:var(--text-secondary);
+  overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+}
+.info-preview-search .material-symbols-rounded{font-size:14px;color:var(--text-secondary);}
+.info-preview-bookmark{
+  width:28px;height:28px;border-radius:50%;
+  background:#fff;border:1px solid var(--neutral-200);
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  animation:infoPreviewPulse 1.8s ease-in-out infinite;
+}
+.info-preview-bookmark .material-symbols-rounded{font-size:16px;color:var(--text-primary);}
+@keyframes infoPreviewPulse{
+  0%,100% { transform:scale(1); }
+  50%     { transform:scale(1.12); }
+}
+.info-preview-pointer{
+  display:flex;align-items:center;gap:6px;
+  font-family:'Roboto',sans-serif;font-size:13px;line-height:18px;
+  color:var(--primary-500);font-weight:600;
+  padding-left:6px;
+}
+.info-preview-arrow{
+  font-size:20px;
+  color:var(--primary-500);
+  animation:infoPreviewArrow 1.4s ease-in-out infinite;
+}
+@keyframes infoPreviewArrow{
+  0%,100% { transform:translate(0,0); }
+  50%     { transform:translate(3px,-3px); }
+}
 
 /* ─── Snackbar / Toast — confirms the search was saved, with a count-down progress bar ─── */
 .toast{
@@ -1348,7 +1402,7 @@ body{
 
       <!-- bottom sheet -->
       <div class="scrim" id="scrim"></div>
-      <div class="sheet" id="sheet" data-mode="multi" aria-hidden="true">
+      <div class="sheet" id="sheet" data-mode="multi" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" aria-hidden="true">
         <div class="sheet-pane" id="sheetPane">
           <div class="sheet-header">
             <div class="header-left">
@@ -1382,10 +1436,10 @@ body{
 
       <!-- Save-search sheet — confirms the search has been saved and offers notification toggles -->
       <div class="scrim" id="saveScrim"></div>
-      <div class="save-sheet" id="saveSheet" aria-hidden="true">
+      <div class="save-sheet" id="saveSheet" role="dialog" aria-modal="true" aria-labelledby="saveSheetTitle" aria-hidden="true">
         <div class="save-sheet-header">
           <div class="save-success">
-            <h3>Save your search</h3>
+            <h3 id="saveSheetTitle">Save your search</h3>
           </div>
           <button class="icon-circle" id="saveClose" aria-label="Close">
             <span class="material-symbols-rounded">close</span>
@@ -1412,9 +1466,9 @@ body{
       <!-- "Search & Results" info sheet — explains how results are ordered,
            how filters work, and how to save a search; reachable from the (i) icon next to the count. -->
       <div class="scrim" id="infoScrim"></div>
-      <div class="info-sheet" id="infoSheet" aria-hidden="true">
+      <div class="info-sheet" id="infoSheet" role="dialog" aria-modal="true" aria-labelledby="infoSheetTitle" aria-hidden="true">
         <div class="info-sheet-header">
-          <h3>How search & results work</h3>
+          <h3 id="infoSheetTitle">How search &amp; results work</h3>
           <button class="icon-circle" id="infoSheetClose" aria-label="Close">
             <span class="material-symbols-rounded">close</span>
           </button>
@@ -1439,7 +1493,23 @@ body{
             <div>
               <h4>Saving a search</h4>
               <p>Tap the bookmark icon at the top right to save the current search with its filters. You'll get a notification whenever a new listing matches.</p>
-              <button class="info-link" type="button" id="infoReplayCoachmark">Show me the tip again</button>
+              <!-- Inline preview — small mock topbar with an animated arrow pointing at the bookmark icon -->
+              <div class="info-preview" aria-hidden="true">
+                <div class="info-preview-topbar">
+                  <span class="info-preview-back material-symbols-rounded">arrow_back</span>
+                  <span class="info-preview-search">
+                    <span class="material-symbols-rounded">search</span>
+                    Zara jacket
+                  </span>
+                  <span class="info-preview-bookmark">
+                    <span class="material-symbols-rounded">bookmark</span>
+                  </span>
+                </div>
+                <div class="info-preview-pointer">
+                  <span class="info-preview-arrow material-symbols-rounded">north_east</span>
+                  <span class="info-preview-label">Here's where the bookmark lives</span>
+                </div>
+              </div>
             </div>
           </section>
         </div>
@@ -2397,8 +2467,11 @@ body{
     updateCta();
     // Animate in only if the sheet wasn't already open (e.g. hub → sub-sheet swap stays open)
     if(!sheet.classList.contains('open')){
+      if(typeof rememberTrigger === 'function') rememberTrigger();
       scrim.classList.add('open');
       sheet.classList.add('open');
+      if(typeof lockBackground === 'function') lockBackground();
+      if(typeof focusIntoSheet === 'function') focusIntoSheet(sheet);
     } else if(slideDir){
       // Lateral slide when swapping content between hub and a sub-sheet
       sheet.classList.remove('slide-from-right','slide-from-left');
@@ -2422,6 +2495,8 @@ body{
     draftAllSelections = null;
     priceRangeDraft = null;
     navStack = [];
+    if(typeof unlockBackground === 'function') unlockBackground();
+    if(typeof restoreFocus === 'function') restoreFocus();
   }
   // Toggle the scrollable-content shadows: above the CTA when more content below,
   // below the header when there's content scrolled out of view above.
@@ -2984,30 +3059,59 @@ body{
   // Tapping the dimmed background also dismisses, matching the rest of the prototype's sheet pattern
   coachmarkScrim.addEventListener('click', hideCoachmark);
 
+  // ─── Modal focus management — single source of truth for a11y on all dialog sheets ───
+  // Marks the underlying screen content `inert` (so screen readers and keyboard can't reach it),
+  // moves focus into the sheet on open, and restores focus to the trigger on close.
+  const focusableSelector = 'button:not([hidden]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+  const inertTargets = ['.topbar', '.scroll-area', '.results-info'];
+  let lastFocusTrigger = null;
+  function lockBackground(){
+    inertTargets.forEach(sel => {
+      document.querySelectorAll('.screen ' + sel).forEach(el => el.setAttribute('inert', ''));
+    });
+  }
+  function unlockBackground(){
+    document.querySelectorAll('.screen [inert]').forEach(el => el.removeAttribute('inert'));
+  }
+  function focusIntoSheet(sheetEl){
+    // Prefer an explicit close button; otherwise the first focusable element inside the sheet.
+    const target = sheetEl.querySelector('.icon-circle[aria-label="Close"]')
+                || sheetEl.querySelector(focusableSelector);
+    if(target) setTimeout(() => target.focus({preventScroll:true}), 60);
+  }
+  function restoreFocus(){
+    if(lastFocusTrigger && document.body.contains(lastFocusTrigger)){
+      setTimeout(() => lastFocusTrigger.focus({preventScroll:true}), 60);
+    }
+    lastFocusTrigger = null;
+  }
+  function rememberTrigger(){
+    lastFocusTrigger = document.activeElement;
+  }
+
   // ─── "Search & Results" info sheet — explainer for ordering, filters and saved searches ───
   const infoSheet      = document.getElementById('infoSheet');
   const infoScrim      = document.getElementById('infoScrim');
   const infoSheetBtn   = document.getElementById('resultsInfoBtn');
   const infoSheetClose = document.getElementById('infoSheetClose');
-  const infoReplay     = document.getElementById('infoReplayCoachmark');
   function openInfoSheet(){
+    rememberTrigger();
     infoScrim.classList.add('open');
     infoSheet.classList.add('open');
     infoSheet.setAttribute('aria-hidden','false');
+    lockBackground();
+    focusIntoSheet(infoSheet);
   }
   function closeInfoSheet(){
     infoScrim.classList.remove('open');
     infoSheet.classList.remove('open');
     infoSheet.setAttribute('aria-hidden','true');
+    unlockBackground();
+    restoreFocus();
   }
   infoSheetBtn.addEventListener('click', openInfoSheet);
   infoSheetClose.addEventListener('click', closeInfoSheet);
   infoScrim.addEventListener('click', closeInfoSheet);
-  // "Show me the tip again" — close the info sheet, then re-run the coachmark sequence
-  infoReplay.addEventListener('click', () => {
-    closeInfoSheet();
-    setTimeout(showCoachmark, 280);
-  });
 
   // ─── Save-search sheet ──────────────────────────────
   const saveBtn     = document.getElementById('saveSearchBtn');
@@ -3092,14 +3196,19 @@ body{
     const q = document.querySelector('.search-pill .q');
     if(q) saveQuery.textContent = q.textContent.trim();
     renderSaveFilters();
+    if(typeof rememberTrigger === 'function') rememberTrigger();
     saveScrim.classList.add('open');
     saveSheet.classList.add('open');
     saveSheet.setAttribute('aria-hidden','false');
+    if(typeof lockBackground === 'function') lockBackground();
+    if(typeof focusIntoSheet === 'function') focusIntoSheet(saveSheet);
   }
   function closeSaveSheet(){
     saveScrim.classList.remove('open');
     saveSheet.classList.remove('open');
     saveSheet.setAttribute('aria-hidden','true');
+    if(typeof unlockBackground === 'function') unlockBackground();
+    if(typeof restoreFocus === 'function') restoreFocus();
   }
   // Bookmark icon acts as a toggle:
   //   - not saved → open the save sheet so the user can pick notification preferences
