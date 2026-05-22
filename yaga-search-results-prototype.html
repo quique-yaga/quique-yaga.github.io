@@ -485,6 +485,19 @@ body{
 .toggle-switch:hover{filter:brightness(.97);}
 
 /* ─── First-visit coachmark / tooltip pointing at the save-search bookmark ─── */
+/* Dimming scrim behind the coachmark — focuses attention on the bookmark icon + tooltip */
+.coachmark-scrim{
+  position:absolute;inset:0;
+  background:rgba(0,0,0,.40);
+  z-index:35;
+  cursor:pointer;
+}
+.coachmark-scrim[hidden]{display:none;}
+/* When the coachmark is open, lift the save-search bookmark above the scrim so it stays bright */
+.screen.coachmark-open #saveSearchBtn{
+  position:relative;
+  z-index:45;
+}
 .coachmark{
   position:absolute;
   top:122px;            /* sits just below the topbar, 2px closer to the bookmark icon */
@@ -1183,6 +1196,7 @@ body{
 
       <!-- First-visit coachmark — points at the save-search bookmark in the topbar.
            Dismissed for good after the user taps "Got it" (state persisted in localStorage). -->
+      <div class="coachmark-scrim" id="coachmarkScrim" hidden></div>
       <div class="coachmark" id="coachmark" hidden>
         <div class="coachmark-arrow"></div>
         <p class="coachmark-text">Save your searches and open them from the search bar.</p>
@@ -2748,10 +2762,21 @@ body{
   // so the tooltip can be demoed without needing to clear storage between visits.
   const coachmark = document.getElementById('coachmark');
   const coachmarkBtn = document.getElementById('coachmarkBtn');
-  coachmark.hidden = false;
-  coachmarkBtn.addEventListener('click', () => {
+  const coachmarkScrim = document.getElementById('coachmarkScrim');
+  function showCoachmark(){
+    coachmark.hidden = false;
+    coachmarkScrim.hidden = false;
+    screenEl.classList.add('coachmark-open');
+  }
+  function hideCoachmark(){
     coachmark.hidden = true;
-  });
+    coachmarkScrim.hidden = true;
+    screenEl.classList.remove('coachmark-open');
+  }
+  showCoachmark();
+  coachmarkBtn.addEventListener('click', hideCoachmark);
+  // Tapping the dimmed background also dismisses, matching the rest of the prototype's sheet pattern
+  coachmarkScrim.addEventListener('click', hideCoachmark);
 
   // ─── Save-search sheet ──────────────────────────────
   const saveBtn     = document.getElementById('saveSearchBtn');
