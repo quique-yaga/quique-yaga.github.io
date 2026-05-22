@@ -2785,6 +2785,7 @@ body{
       showSaveToast({
         message: 'Search removed from saved searches.',
         splash: false,
+        duration: TOAST_DURATION_MS / 2,   // unsave message is shorter — half the usual time on screen
       });
     } else {
       openSaveSheet();
@@ -2811,14 +2812,15 @@ body{
   let toastHideTimer = null;
   let toastDomTimer  = null;
   function showSaveToast(opts){
-    const { message, splash } = opts || {};
+    const { message, splash, duration } = opts || {};
+    const visibleMs = duration || TOAST_DURATION_MS;
     clearTimeout(toastHideTimer);
     clearTimeout(toastDomTimer);
     if(message) toastText.textContent = message;
     toast.hidden = false;
     // Restart the countdown animation: drop and re-add .show so the keyframes replay
     toast.classList.remove('show', 'is-splashing');
-    toast.style.setProperty('--toast-duration', (TOAST_DURATION_MS / 1000) + 's');
+    toast.style.setProperty('--toast-duration', (visibleMs / 1000) + 's');
     void toast.offsetWidth;
     toast.classList.add('show');
     toastHideTimer = setTimeout(() => {
@@ -2831,7 +2833,7 @@ body{
           toast.classList.remove('is-splashing');
         }, 280);
       }, splash ? 900 : 100);
-    }, TOAST_DURATION_MS);
+    }, visibleMs);
   }
   // Toggles — purely visual for now (state is reflected in the switch styling)
   [toggleEmail, togglePush].forEach(t => {
