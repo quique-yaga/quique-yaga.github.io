@@ -485,18 +485,28 @@ body{
 .toggle-switch:hover{filter:brightness(.97);}
 
 /* ─── First-visit coachmark / tooltip pointing at the save-search bookmark ─── */
-/* Dimming scrim behind the coachmark — focuses attention on the bookmark icon + tooltip */
+/* Dimming scrim behind the coachmark — fades in to focus attention on the bookmark + tooltip */
 .coachmark-scrim{
   position:absolute;inset:0;
   background:rgba(0,0,0,.40);
   z-index:35;
   cursor:pointer;
+  opacity:0;
+  transition:opacity .3s ease-out;
 }
+.coachmark-scrim.show{opacity:1;}
 .coachmark-scrim[hidden]{display:none;}
-/* When the coachmark is open, lift the save-search bookmark above the scrim so it stays bright */
+/* When the coachmark is open, lift the save-search bookmark above the scrim and pulse it
+   so the eye lands on the icon before the tooltip arrives. */
 .screen.coachmark-open #saveSearchBtn{
   position:relative;
   z-index:45;
+  animation:coachmarkIconPulse .6s ease-in-out;
+}
+@keyframes coachmarkIconPulse{
+  0%   { transform:scale(1);    box-shadow:0 0 0 0 rgba(255,125,107,0); }
+  45%  { transform:scale(1.12); box-shadow:0 0 0 6px rgba(255,125,107,.35); }
+  100% { transform:scale(1);    box-shadow:0 0 0 0 rgba(255,125,107,0); }
 }
 .coachmark{
   position:absolute;
@@ -2763,13 +2773,26 @@ body{
   const coachmark = document.getElementById('coachmark');
   const coachmarkBtn = document.getElementById('coachmarkBtn');
   const coachmarkScrim = document.getElementById('coachmarkScrim');
+  // Reveal sequence — keeps the page calm for a beat, then ramps focus onto the bookmark icon
+  // before finally pushing the tooltip in:
+  //   t=0      → page rendered normally, no overlay
+  //   t=500ms  → scrim fades in (.3s) and the bookmark icon pulses to grab the eye
+  //   t=850ms  → coachmark slides/scales in (its own keyframe animation)
   function showCoachmark(){
-    coachmark.hidden = false;
-    coachmarkScrim.hidden = false;
-    screenEl.classList.add('coachmark-open');
+    setTimeout(() => {
+      coachmarkScrim.hidden = false;
+      // Force reflow so the opacity transition runs from 0 → 1 instead of skipping
+      void coachmarkScrim.offsetWidth;
+      coachmarkScrim.classList.add('show');
+      screenEl.classList.add('coachmark-open');
+      setTimeout(() => {
+        coachmark.hidden = false;
+      }, 350);
+    }, 500);
   }
   function hideCoachmark(){
     coachmark.hidden = true;
+    coachmarkScrim.classList.remove('show');
     coachmarkScrim.hidden = true;
     screenEl.classList.remove('coachmark-open');
   }
