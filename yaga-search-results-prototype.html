@@ -1707,9 +1707,21 @@ body{
       return sortId === DEFAULT_SORT_ID ? '' : getSortValueLabel();
     }
     if(filterKey === 'price'){
+      const f = filters.price;
+      // Inside the Filter hub draft (e.g. just after Clear all), use the staged price Set so the
+      // row clears instantly. Otherwise fall back to the committed priceRange object.
+      if(activeFilter === 'all' && draftAllSelections){
+        const draftPrice = draftAllSelections.price;
+        if(!draftPrice || draftPrice.size === 0) return '';
+        const range = [...draftPrice][0];
+        const m = range && range.match(/^(\d+)-(\d+)$/);
+        if(!m) return '';
+        const min = parseInt(m[1], 10), max = parseInt(m[2], 10);
+        if(min === f.min && max === f.max) return '';
+        return `€${min} – €${max}`;
+      }
       const c = selections.priceRange;
       if(!c) return '';
-      const f = filters.price;
       if(c.min === f.min && c.max === f.max) return '';
       return `€${c.min} – €${c.max}`;
     }
@@ -2520,6 +2532,11 @@ body{
       Object.keys(draftAllSelections).forEach(k => {
         selections[k] = new Set(draftAllSelections[k]);
       });
+      // priceRange is an object (not a Set) and lives outside draftAllSelections; sync it from
+      // the price Set so Clear all really does wipe the price range too.
+      if(!selections.price || selections.price.size === 0){
+        selections.priceRange = null;
+      }
       // Keep only chips whose underlying selection is still "active". Sort is a special case:
       // its set is never empty (it always carries a default), so we test against DEFAULT_SORT_ID.
       activationOrder = activationOrder.filter(k => {
