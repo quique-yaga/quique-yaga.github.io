@@ -3287,10 +3287,10 @@ body{
 
   function openSaveSheet(){
     renderSaveFilters();
-    // Branch on saved state: "Edit saved search" if already saved, otherwise the standard Save flow
+    // Branch on saved state: edit-notifications mode when already saved, otherwise the standard Save flow
     const sheetTitleEl = document.getElementById('saveSheetTitle');
     if(searchSaved){
-      sheetTitleEl.textContent = 'Edit saved search';
+      sheetTitleEl.textContent = 'Edit saved search notifications';
       saveConfirm.textContent = 'Update';
       saveConfirm.disabled = true;            // becomes enabled when toggles diverge from saved state
       saveRemoveBtn.hidden = false;            // Remove link only in Edit mode
