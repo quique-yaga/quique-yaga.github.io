@@ -1641,10 +1641,8 @@ body{
       iMin.value = mn;
       iMax.value = mx;
       updateCta();
-      // Show Clear the moment the range diverges from the defaults
-      const atDefault = priceRangeDraft.min === f.min && priceRangeDraft.max === f.max;
-      clearBtn.textContent = 'Clear';
-      clearBtn.hidden = atDefault;
+      // Price is a single range — Clear isn't useful here; user reaches the default by dragging back
+      clearBtn.hidden = true;
     };
     rMin.addEventListener('input', sync);
     rMax.addEventListener('input', sync);
@@ -1661,10 +1659,7 @@ body{
       rMax.value = v; sync();
     });
     sync();   // paint the track + position immediately
-    // Clear visible whenever the draft differs from the defaults
-    const isDefault = priceRangeDraft.min === f.min && priceRangeDraft.max === f.max;
-    clearBtn.textContent = 'Clear';
-    clearBtn.hidden = isDefault;
+    clearBtn.hidden = true;   // Price sheet: no Clear button (replacing range by dragging is the gesture)
     requestAnimationFrame(updateScrollableHint);
   }
 
@@ -2673,16 +2668,9 @@ body{
       }
       clearBtn.hidden = !hasDraftSelections;
     } else if(activeFilter === 'category' || activeFilter.startsWith('cat-')){
-      // Category hubs (and sub-hubs) show Clear when *any* descendant in the subtree has selections.
-      clearBtn.textContent = 'Clear';
-      const prefix = activeFilter === 'category' ? 'cat-' : activeFilter;
-      let hasAny = (selected && selected.size > 0);
-      Object.keys(selections).forEach(k => {
-        if(hasAny) return;
-        const match = (prefix === 'cat-') ? k.startsWith('cat-') : (k === prefix || k.startsWith(prefix + '-'));
-        if(match && selections[k] && selections[k].size > 0) hasAny = true;
-      });
-      clearBtn.hidden = !hasAny;
+      // Category sheets are single-select across the whole tree — replacing the selection
+      // is done by picking a different one, so a dedicated Clear button isn't useful here.
+      clearBtn.hidden = true;
     } else {
       // Same Clear-button logic everywhere else: hidden for single-select sheets, otherwise
       // visible only when there's at least one option selected.
