@@ -3306,17 +3306,16 @@ body{
     clearTimeout(toastHideTimer);
     clearTimeout(toastDomTimer);
     if(message) toastText.textContent = message;
-    // Variant configuration — "warning" uses the bookmark icon + X button (no spinner / confetti).
-    // Default ("save") keeps the original look: check glyph, countdown ring, optional confetti.
+    // Variant configuration — "warning" uses the bookmark icon (no confetti). Default ("save")
+    // shows the check glyph with the optional confetti burst. Both variants now expose the X close.
     if(variant === 'warning'){
       toast.classList.add('variant-warning');
       toastIconGlyph.textContent = 'bookmark';
-      toastClose.hidden = false;
     } else {
       toast.classList.remove('variant-warning');
       toastIconGlyph.textContent = 'check';
-      toastClose.hidden = true;
     }
+    toastClose.hidden = false;
     toast.hidden = false;
     // Restart the countdown animation: drop and re-add .show so the keyframes replay
     toast.classList.remove('show', 'is-splashing');
