@@ -738,27 +738,9 @@ body{
   transform-origin:center;
   position:relative;z-index:1; /* keep the icon above the confetti */
 }
-.toast-ring{
-  position:absolute;inset:0;
-  width:100%;height:100%;
-  transform:rotate(-90deg);     /* start the ring at 12 o'clock */
-}
-.toast-ring circle{fill:none;stroke-width:2.5;}
-.toast-ring-track{stroke:rgba(255,255,255,0.18);}
-.toast-ring-fill{
-  stroke:#4ADE80;
-  stroke-linecap:round;
-  /* r=14 → circumference ≈ 87.96 */
-  stroke-dasharray:87.96;
-  stroke-dashoffset:0;
-}
-.toast.show .toast-ring-fill{
-  animation:toastRingCountdown var(--toast-duration, 5s) linear forwards;
-}
-@keyframes toastRingCountdown{
-  from { stroke-dashoffset:0; }
-  to   { stroke-dashoffset:87.96; }
-}
+/* Countdown spinner removed in this prototype — toasts auto-dismiss silently and the X
+   close button is the only dismiss affordance on screen. */
+.toast-ring{display:none;}
 /* Warning variant — used for "filters changed, re-save" toast. Same countdown spinner
    as the save toast, plus a manual X close button so the user can dismiss earlier. */
 .toast.variant-warning .toast-icon .material-symbols-rounded{
