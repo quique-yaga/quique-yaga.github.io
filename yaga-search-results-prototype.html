@@ -759,11 +759,9 @@ body{
   from { stroke-dashoffset:0; }
   to   { stroke-dashoffset:87.96; }
 }
-/* Warning variant — used for "filters changed, re-save" toast. Drops the countdown ring,
-   shows a bookmark glyph + a manual X close button instead of the spinner. */
-.toast.variant-warning .toast-ring{display:none;}
+/* Warning variant — used for "filters changed, re-save" toast. Same countdown spinner
+   as the save toast, plus a manual X close button so the user can dismiss earlier. */
 .toast.variant-warning .toast-icon .material-symbols-rounded{
-  font-size:20px;
   font-variation-settings:'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
 }
 .toast.variant-warning .confetti{display:none;}
