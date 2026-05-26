@@ -1698,9 +1698,12 @@ body{
 
   function getFilterValuePreview(filterKey){
     if(filterKey === 'sort'){
-      // Only surface the sort value once the user has changed it from the default — keeps
-      // the Filter hub quiet for sort just like the Sort chip in the row.
-      const sortId = selections.sort && selections.sort.size > 0 ? [...selections.sort][0] : DEFAULT_SORT_ID;
+      // Inside the Filter hub draft (after Clear all, before View results), prefer the staged
+      // sort value over the still-committed one so the row updates instantly.
+      const sortSet = (activeFilter === 'all' && draftAllSelections && draftAllSelections.sort)
+                    ? draftAllSelections.sort
+                    : selections.sort;
+      const sortId = sortSet && sortSet.size > 0 ? [...sortSet][0] : DEFAULT_SORT_ID;
       return sortId === DEFAULT_SORT_ID ? '' : getSortValueLabel();
     }
     if(filterKey === 'price'){
@@ -2448,11 +2451,12 @@ body{
     } else {
       priceRangeDraft = null;
     }
-    // For the universal Filter sheet, snapshot every category so Clear all can stage a wipe
+    // For the universal Filter sheet, snapshot every committed state — including sort — so
+    // Clear all can reset every dimension back to its default at once.
     if(key === 'all'){
       draftAllSelections = {};
       Object.keys(filters).forEach(k => {
-        if(k === 'sort' || k === 'all') return;
+        if(k === 'all') return;
         draftAllSelections[k] = new Set(selections[k] || []);
       });
     } else {
@@ -2516,7 +2520,15 @@ body{
       Object.keys(draftAllSelections).forEach(k => {
         selections[k] = new Set(draftAllSelections[k]);
       });
-      activationOrder = activationOrder.filter(k => (selections[k]?.size || 0) > 0);
+      // Keep only chips whose underlying selection is still "active". Sort is a special case:
+      // its set is never empty (it always carries a default), so we test against DEFAULT_SORT_ID.
+      activationOrder = activationOrder.filter(k => {
+        if(k === 'sort'){
+          const sortId = selections.sort && selections.sort.size > 0 ? [...selections.sort][0] : DEFAULT_SORT_ID;
+          return sortId !== DEFAULT_SORT_ID;
+        }
+        return (selections[k]?.size || 0) > 0;
+      });
     } else if(closingKey === 'price' && priceRangeDraft){
       // Commit the price slider's draft range
       const f = filters.price;
@@ -2662,9 +2674,18 @@ body{
     if(activeFilter === 'all'){
       // "Filter" universal sheet — show "Clear all" when the DRAFT has any active category
       clearBtn.textContent = 'Clear all';
+      // Clear all is visible whenever any committed filter has a value OR sort differs from the default.
+      // Sort always carries a value (at least the default), so we test it specifically.
       let hasDraftSelections = false;
       if(draftAllSelections){
-        hasDraftSelections = Object.values(draftAllSelections).some(s => s.size > 0);
+        hasDraftSelections = Object.keys(draftAllSelections).some(k => {
+          const set = draftAllSelections[k];
+          if(k === 'sort'){
+            const sortId = set && set.size > 0 ? [...set][0] : DEFAULT_SORT_ID;
+            return sortId !== DEFAULT_SORT_ID;
+          }
+          return set && set.size > 0;
+        });
       }
       clearBtn.hidden = !hasDraftSelections;
     } else if(activeFilter === 'category' || activeFilter.startsWith('cat-')){
@@ -2688,10 +2709,17 @@ body{
       return;
     }
     // "Clear all" on the Filter (all) sheet — staged in draft only. Nothing commits, nothing in the
-    // background page updates until the user taps View results.
+    // background page updates until the user taps View results. Sort is reset to its default value
+    // (Relevance) so the user really does land on the "nothing selected" baseline.
     if(activeFilter === 'all'){
       if(draftAllSelections){
-        Object.keys(draftAllSelections).forEach(k => draftAllSelections[k].clear());
+        Object.keys(draftAllSelections).forEach(k => {
+          if(k === 'sort'){
+            draftAllSelections[k] = new Set([DEFAULT_SORT_ID]);
+          } else {
+            draftAllSelections[k].clear();
+          }
+        });
       }
       renderSheetList();   // refresh Clear-all visibility
       updateCta();         // CTA reflects cleared draft (e.g. "View 606 results")
