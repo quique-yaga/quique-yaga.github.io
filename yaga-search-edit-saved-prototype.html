@@ -1288,19 +1288,28 @@ body{
 .cta:hover{background:var(--primary-600);}
 .cta:active{background:#F93315;}
 .cta:disabled{background:var(--neutral-200);color:#fff;cursor:not-allowed;}
-/* Tertiary "Remove from saved searches" — only used in the Edit Saved Search variant */
+/* "Remove from saved searches" — Koos destructive-secondary button: white fill, red stroke + red
+   label and trash icon. Matches the primary CTA in shape and width so they read as a pair. */
 .save-remove{
-  background:transparent;border:none;
-  color:var(--primary-500);
+  width:100%;
+  height:48px;
+  padding:0 24px;
+  background:#fff;
+  border:1px solid #DE1C22;
+  border-radius:9999px;
+  color:#DE1C22;
   font-family:'Roboto',sans-serif;
-  font-size:14px;font-weight:500;line-height:20px;
-  padding:8px 0 0 0;
+  font-size:16px;font-weight:400;line-height:24px;
   cursor:pointer;
-  text-decoration:underline;
-  text-underline-offset:3px;
-  align-self:center;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  transition:background .12s ease-out;
 }
-.save-remove:hover{color:#F26451;}
+.save-remove .material-symbols-rounded{
+  font-size:20px;color:#DE1C22;
+  font-variation-settings:'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+.save-remove:hover{background:#FFF1F2;}
+.save-remove:active{background:#FFE4E6;}
 .save-remove[hidden]{display:none;}
 
 /* Apply button — secondary variant per Figma (node 1075:5003).
@@ -1475,7 +1484,10 @@ body{
           </div>
         </div>
         <button class="cta" id="saveConfirm">Save</button>
-        <button class="save-remove" id="saveRemove" type="button" hidden>Remove from saved searches</button>
+        <button class="save-remove" id="saveRemove" type="button" hidden>
+          <span class="material-symbols-rounded">delete</span>
+          Remove from saved searches
+        </button>
       </div>
 
       <!-- "Search & Results" info sheet — explains how results are ordered,
