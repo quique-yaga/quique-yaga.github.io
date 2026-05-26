@@ -2900,6 +2900,10 @@ body{
     // Apply button — visible inside a sub-sheet entered from a hub
     // AND only once the user has actually selected something in that sub-sheet's draft.
     const inHubSubsheet = sheet.classList.contains('from-hub') && activeFilter !== 'all';
+    // When entering via the Category chip directly (navStack root is 'category'), there's no
+    // multi-step refinement flow to return to — category is single-select across the tree —
+    // so the Apply button is hidden and only "View results" remains.
+    const enteredViaCategory = navStack.length > 0 && navStack[0] === 'category';
     let hasDraftSelection = false;
     if(inHubSubsheet){
       if(f && f.variant === 'range' && priceRangeDraft){
@@ -2908,7 +2912,7 @@ body{
         hasDraftSelection = draftSelection.size > 0;
       }
     }
-    sheetApply.hidden = !(inHubSubsheet && hasDraftSelection);
+    sheetApply.hidden = enteredViaCategory || !(inHubSubsheet && hasDraftSelection);
     if(f && f.cta && !inHubSubsheet){
       sheetCta.textContent = f.cta;     // e.g. "Done" for Colour
       return;
