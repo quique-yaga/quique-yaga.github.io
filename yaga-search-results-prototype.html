@@ -891,11 +891,9 @@ body{
   background:var(--shade-00);
   transition:background .12s ease-out;
 }
-/* Dividers between every consecutive option row — including after the "All …" row.
-   Exception: the universal Filter hub (key="all") keeps its uncrowded look — only the
-   .hub-divider section breaks separate Sort/Category/Size and Size/Condition groups. */
+/* Hairline divider between every consecutive option row — applies to the Filter hub
+   as well so its rows scan with the same rhythm as the category sheets. */
 .option-row + .option-row{border-top:1px solid #EEEFF0;}
-.sheet[data-filter-key="all"] .option-row + .option-row{border-top:none;}
 
 /* Section header inside the option list (e.g. Trending / Other in Brand sheet) */
 .section-header{
