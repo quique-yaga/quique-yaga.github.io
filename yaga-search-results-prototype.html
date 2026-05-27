@@ -738,33 +738,12 @@ body{
   transform-origin:center;
   position:relative;z-index:1; /* keep the icon above the confetti */
 }
-.toast-ring{
-  position:absolute;inset:0;
-  width:100%;height:100%;
-  transform:rotate(-90deg);     /* start the ring at 12 o'clock */
-}
-.toast-ring circle{fill:none;stroke-width:2.5;}
-.toast-ring-track{stroke:rgba(255,255,255,0.18);}
-.toast-ring-fill{
-  stroke:#4ADE80;
-  stroke-linecap:round;
-  /* r=14 → circumference ≈ 87.96 */
-  stroke-dasharray:87.96;
-  stroke-dashoffset:0;
-}
-.toast.show .toast-ring-fill{
-  animation:toastRingCountdown var(--toast-duration, 5s) linear forwards;
-}
-@keyframes toastRingCountdown{
-  from { stroke-dashoffset:0; }
-  to   { stroke-dashoffset:87.96; }
-}
-/* Warning variant — used for "filters changed, re-save" toast. Same countdown spinner
-   as the save toast, plus a manual X close button so the user can dismiss earlier. */
+/* Countdown spinner and confetti removed from the main prototype — toasts now auto-dismiss
+   silently and the X close button is the only on-screen dismiss affordance. */
+.toast-ring, .confetti{display:none;}
 .toast.variant-warning .toast-icon .material-symbols-rounded{
   font-variation-settings:'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
 }
-.toast.variant-warning .confetti{display:none;}
 /* Close (X) button — only shown on the warning variant; user dismisses on tap */
 .toast-close{
   flex-shrink:0;
@@ -784,70 +763,6 @@ body{
 }
 .toast-close:hover{background:rgba(255,255,255,0.12);color:#fff;}
 
-/* Confetti burst — 16 mixed-shape, mixed-colour pieces fly outward from behind the check */
-.confetti{
-  position:absolute;left:50%;top:50%;
-  width:0;height:0;
-  pointer-events:none;
-}
-.confetti .conf{
-  position:absolute;left:0;top:0;
-  width:6px;height:6px;border-radius:50%;
-  background:#4ADE80;
-  transform:translate(-50%,-50%) scale(0);
-  opacity:0;
-}
-/* 16 directions in a star pattern, alternating short/long distances */
-.confetti .conf:nth-child(1) {--tx:  28px; --ty: -42px; --r:  35deg;}
-.confetti .conf:nth-child(2) {--tx:  44px; --ty: -20px; --r:  65deg;}
-.confetti .conf:nth-child(3) {--tx:  50px; --ty:   4px; --r:  20deg;}
-.confetti .conf:nth-child(4) {--tx:  44px; --ty:  24px; --r: -30deg;}
-.confetti .conf:nth-child(5) {--tx:  28px; --ty:  42px; --r:  50deg;}
-.confetti .conf:nth-child(6) {--tx:   6px; --ty:  46px; --r: -45deg;}
-.confetti .conf:nth-child(7) {--tx: -22px; --ty:  44px; --r:  25deg;}
-.confetti .conf:nth-child(8) {--tx: -42px; --ty:  28px; --r:  70deg;}
-.confetti .conf:nth-child(9) {--tx: -52px; --ty:   2px; --r: -40deg;}
-.confetti .conf:nth-child(10){--tx: -44px; --ty: -22px; --r:  55deg;}
-.confetti .conf:nth-child(11){--tx: -28px; --ty: -44px; --r: -20deg;}
-.confetti .conf:nth-child(12){--tx:  -6px; --ty: -50px; --r:  30deg;}
-.confetti .conf:nth-child(13){--tx:  20px; --ty: -32px; --r: -55deg;}
-.confetti .conf:nth-child(14){--tx:  36px; --ty:  12px; --r:  15deg;}
-.confetti .conf:nth-child(15){--tx: -18px; --ty:  30px; --r: -25deg;}
-.confetti .conf:nth-child(16){--tx: -34px; --ty: -10px; --r:  45deg;}
-/* Variants of green only — light, mid, deeper — alternating across the pieces */
-.confetti .conf:nth-child(3n)  {background:#22C55E;}   /* deeper green */
-.confetti .conf:nth-child(5n)  {background:#86EFAC;}   /* light green */
-.confetti .conf:nth-child(7)   {background:#16A34A;}   /* darker green */
-.confetti .conf:nth-child(11)  {background:#BBF7D0;}   /* pale green */
-/* Make every 4th piece a rectangle (rotated) for variety */
-.confetti .conf:nth-child(4n+2){
-  width:7px;height:3px;border-radius:1px;
-}
-.confetti .conf:nth-child(4n+3){
-  width:3px;height:7px;border-radius:1px;
-}
-.toast.is-splashing .confetti .conf{
-  animation: confettiBurst .9s cubic-bezier(.16,.84,.32,1) forwards;
-}
-@keyframes confettiBurst{
-  0%   { transform:translate(-50%,-50%) scale(.2) rotate(0deg);  opacity:0; }
-  15%  { opacity:1; }
-  100% {
-    transform:
-      translate(calc(-50% + var(--tx)), calc(-50% + var(--ty)))
-      scale(1) rotate(var(--r, 30deg));
-    opacity:0;
-  }
-}
-/* Pop the check icon at the moment the confetti launches */
-.toast.is-splashing .check-glyph{
-  animation: checkPulse .5s cubic-bezier(.34,1.56,.64,1);
-}
-@keyframes checkPulse{
-  0%   { transform:scale(1); }
-  45%  { transform:scale(1.35); }
-  100% { transform:scale(1); }
-}
 .sheet{
   position:absolute;left:0;right:0;bottom:0;
   background:var(--shade-00);
@@ -1504,27 +1419,13 @@ body{
       </div>
 
       <!-- Toast / Snackbar — two variants share the markup:
-           "save" (default) → check icon + countdown ring + confetti at end (the celebratory toast)
-           "warning"       → bookmark icon + X close button (no spinner, manual or auto dismiss) -->
+           "save" (default) → check icon, auto-dismiss
+           "warning"        → bookmark icon, auto-dismiss
+           Both expose an X close button; no countdown ring, no confetti. -->
       <div class="toast" id="toast" hidden role="status" aria-live="polite">
         <div class="toast-body">
           <span class="toast-icon">
-            <svg class="toast-ring" viewBox="0 0 32 32" aria-hidden="true">
-              <circle class="toast-ring-track" cx="16" cy="16" r="14"/>
-              <circle class="toast-ring-fill"  cx="16" cy="16" r="14"/>
-            </svg>
             <span class="material-symbols-rounded check-glyph" id="toastIconGlyph">check</span>
-            <!-- Confetti burst around the icon — green pieces when the save lands -->
-            <span class="confetti" aria-hidden="true">
-              <span class="conf"></span><span class="conf"></span>
-              <span class="conf"></span><span class="conf"></span>
-              <span class="conf"></span><span class="conf"></span>
-              <span class="conf"></span><span class="conf"></span>
-              <span class="conf"></span><span class="conf"></span>
-              <span class="conf"></span><span class="conf"></span>
-              <span class="conf"></span><span class="conf"></span>
-              <span class="conf"></span><span class="conf"></span>
-            </span>
           </span>
           <span class="toast-text" id="toastText">Your saved search will appear in your search bar.</span>
           <button class="toast-close" id="toastClose" aria-label="Close" hidden>
@@ -3284,17 +3185,16 @@ body{
     toast.classList.remove('show');
     setTimeout(() => {
       toast.hidden = true;
-      toast.classList.remove('is-splashing', 'variant-warning');
+      toast.classList.remove('variant-warning');
     }, 280);
   }
   function showSaveToast(opts){
-    const { message, splash, duration, variant } = opts || {};
+    const { message, duration, variant } = opts || {};
     const visibleMs = duration || TOAST_DURATION_MS;
     clearTimeout(toastHideTimer);
     clearTimeout(toastDomTimer);
     if(message) toastText.textContent = message;
-    // Variant configuration — "warning" uses the bookmark icon (no confetti). Default ("save")
-    // shows the check glyph with the optional confetti burst. Both variants now expose the X close.
+    // Variant configuration — "warning" uses the bookmark glyph, otherwise the green check.
     if(variant === 'warning'){
       toast.classList.add('variant-warning');
       toastIconGlyph.textContent = 'bookmark';
@@ -3304,22 +3204,11 @@ body{
     }
     toastClose.hidden = false;
     toast.hidden = false;
-    // Restart the countdown animation: drop and re-add .show so the keyframes replay
-    toast.classList.remove('show', 'is-splashing');
-    toast.style.setProperty('--toast-duration', (visibleMs / 1000) + 's');
+    toast.classList.remove('show');
     void toast.offsetWidth;
     toast.classList.add('show');
-    toastHideTimer = setTimeout(() => {
-      // Celebratory green confetti burst — only for the "saved" toast, not warning or removal ones
-      if(splash) toast.classList.add('is-splashing');
-      toastDomTimer = setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-          toast.hidden = true;
-          toast.classList.remove('is-splashing', 'variant-warning');
-        }, 280);
-      }, splash ? 900 : 100);
-    }, visibleMs);
+    // Silent auto-dismiss after the duration; the X close is the only on-screen affordance
+    toastHideTimer = setTimeout(dismissToast, visibleMs);
   }
   toastClose.addEventListener('click', dismissToast);
 
