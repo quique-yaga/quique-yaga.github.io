@@ -1448,18 +1448,6 @@ body{
              thin divider and any active filters when they exist. -->
         <ul class="save-filters" id="saveFilters"></ul>
         <div class="save-desc">Get notified whenever a new listing matches this search.</div>
-        <div class="toggle-list">
-          <div class="toggle-row">
-            <span class="material-symbols-rounded">mail</span>
-            <span class="toggle-label">Email updates</span>
-            <button class="toggle-switch" id="toggleEmail" aria-pressed="false" aria-label="Email updates"></button>
-          </div>
-          <div class="toggle-row">
-            <span class="material-symbols-rounded">notifications</span>
-            <span class="toggle-label">App notifications</span>
-            <button class="toggle-switch on" id="togglePush" aria-pressed="true" aria-label="App notifications"></button>
-          </div>
-        </div>
         <button class="cta" id="saveConfirm">Save</button>
       </div>
 
@@ -3157,8 +3145,7 @@ body{
   const saveConfirm = document.getElementById('saveConfirm');
   const saveClose   = document.getElementById('saveClose');
   const saveFilters = document.getElementById('saveFilters');
-  const toggleEmail = document.getElementById('toggleEmail');
-  const togglePush  = document.getElementById('togglePush');
+  // Notification toggles removed from this prototype's save sheet — no per-channel preferences here.
   let searchSaved = false;
   let savedSnapshot = null;   // JSON of selections at the moment the user saved the search
 
@@ -3335,14 +3322,6 @@ body{
     }, visibleMs);
   }
   toastClose.addEventListener('click', dismissToast);
-  // Toggles — purely visual for now (state is reflected in the switch styling)
-  [toggleEmail, togglePush].forEach(t => {
-    t.addEventListener('click', () => {
-      const next = !t.classList.contains('on');
-      t.classList.toggle('on', next);
-      t.setAttribute('aria-pressed', next ? 'true' : 'false');
-    });
-  });
 
   // ─── Product grid (clothing photos from Unsplash) ───
   // Photos are free under the Unsplash License: free for commercial use, no attribution required.
