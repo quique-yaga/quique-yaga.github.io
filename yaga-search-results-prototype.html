@@ -2880,6 +2880,12 @@ body{
     if(inHubSubsheet){
       if(f && f.variant === 'range' && priceRangeDraft){
         hasDraftSelection = priceRangeDraft.min !== f.min || priceRangeDraft.max !== f.max;
+      } else if(activeFilter === 'sort' && draftSelection){
+        // Sort: Apply only appears when the user picks a different option than what's already
+        // committed (e.g. Newest first → Price low to high). Re-tapping the current sort = no change.
+        const committedSortId = selections.sort && selections.sort.size > 0 ? [...selections.sort][0] : DEFAULT_SORT_ID;
+        const draftSortId = draftSelection.size > 0 ? [...draftSelection][0] : null;
+        hasDraftSelection = draftSortId !== null && draftSortId !== committedSortId;
       } else if(draftSelection){
         hasDraftSelection = draftSelection.size > 0;
       }
