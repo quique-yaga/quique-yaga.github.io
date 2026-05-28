@@ -38,7 +38,7 @@
 
 /* ─── Iteration switcher ─────────────────────── */
 .iteration-toggle{
-  position:fixed;top:16px;left:50%;transform:translateX(-50%);
+  position:fixed;top:16px;right:16px;
   display:flex;gap:2px;
   background:#fff;
   border:1px solid var(--neutral-200);
@@ -3057,9 +3057,7 @@ body{
   iterButtons.forEach(b => {
     b.addEventListener('click', () => applyIteration(Number(b.dataset.iter)));
   });
-  // Read URL hash on load — default to iter 1 (the MVP)
-  const initialIter = /iter\s*2/i.test(location.hash) ? 2 : 1;
-  applyIteration(initialIter);
+  // Initial iteration is applied at the very end of init (after coachmark vars are declared).
 
   // ─── Coachmark for the save-search feature ───────────────────
   // TESTING MODE: always show on every page load (ignore the localStorage "seen" flag)
@@ -3102,6 +3100,9 @@ body{
   coachmarkBtn.addEventListener('click', hideCoachmark);
   // Tapping the dimmed background also dismisses, matching the rest of the prototype's sheet pattern
   coachmarkScrim.addEventListener('click', hideCoachmark);
+
+  // Now that coachmark variables exist, apply the initial iteration (read from URL hash).
+  applyIteration(/iter\s*2/i.test(location.hash) ? 2 : 1);
 
   // ─── Modal focus management — single source of truth for a11y on all dialog sheets ───
   // Marks the underlying screen content `inert` (so screen readers and keyboard can't reach it),
