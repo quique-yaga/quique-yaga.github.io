@@ -1649,8 +1649,10 @@ body{
       iMin.value = mn;
       iMax.value = mx;
       updateCta();
-      // Price is a single range — Clear isn't useful here; user reaches the default by dragging back
-      clearBtn.hidden = true;
+      // Show Clear once the range diverges from the defaults — tap resets to {min, max}.
+      const atDefault = priceRangeDraft.min === f.min && priceRangeDraft.max === f.max;
+      clearBtn.textContent = 'Clear';
+      clearBtn.hidden = atDefault;
     };
     rMin.addEventListener('input', sync);
     rMax.addEventListener('input', sync);
@@ -1667,7 +1669,10 @@ body{
       rMax.value = v; sync();
     });
     sync();   // paint the track + position immediately
-    clearBtn.hidden = true;   // Price sheet: no Clear button (replacing range by dragging is the gesture)
+    // Initial Clear visibility on sheet open — same rule as in sync()
+    const isDefault = priceRangeDraft.min === f.min && priceRangeDraft.max === f.max;
+    clearBtn.textContent = 'Clear';
+    clearBtn.hidden = isDefault;
     requestAnimationFrame(updateScrollableHint);
   }
 
@@ -2717,9 +2722,24 @@ body{
       }
       clearBtn.hidden = !hasDraftSelections;
     } else if(activeFilter === 'category' || activeFilter.startsWith('cat-')){
-      // Category sheets are single-select across the whole tree — replacing the selection
-      // is done by picking a different one, so a dedicated Clear button isn't useful here.
-      clearBtn.hidden = true;
+      // Category sheets — show Clear when this sheet's draft has a selection OR any descendant
+      // category in its subtree has a committed selection (so the user can wipe the whole branch).
+      clearBtn.textContent = 'Clear';
+      const prefix = activeFilter === 'category' ? 'cat-' : activeFilter;
+      let hasAny = !!(selected && selected.size > 0);
+      Object.keys(selections).forEach(k => {
+        if(hasAny) return;
+        const match = (prefix === 'cat-')
+          ? (k === 'category' || k.startsWith('cat-'))
+          : (k === prefix || k.startsWith(prefix + '-'));
+        if(match && selections[k] && selections[k].size > 0) hasAny = true;
+      });
+      clearBtn.hidden = !hasAny;
+    } else if(activeFilter === 'sort'){
+      // Sort — show Clear when the draft sits on a non-default option (e.g. Newest first → Price).
+      clearBtn.textContent = 'Clear';
+      const draftSortId = draftSelection && draftSelection.size > 0 ? [...draftSelection][0] : DEFAULT_SORT_ID;
+      clearBtn.hidden = draftSortId === DEFAULT_SORT_ID;
     } else {
       // Same Clear-button logic everywhere else: hidden for single-select sheets, otherwise
       // visible only when there's at least one option selected.
@@ -2761,6 +2781,16 @@ body{
         if(match && selections[k]) selections[k].clear();
       });
       if(draftSelection) draftSelection.clear();
+      renderSheetList();
+      updateCta();
+      return;
+    }
+    // Sort — reset the draft back to the default sort id (e.g. "Newest first" / "Relevance").
+    if(activeFilter === 'sort'){
+      if(draftSelection){
+        draftSelection.clear();
+        draftSelection.add(DEFAULT_SORT_ID);
+      }
       renderSheetList();
       updateCta();
       return;
