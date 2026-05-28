@@ -66,7 +66,9 @@
 body.iter-1 #coachmark,
 body.iter-1 #coachmarkScrim,
 body.iter-1 .results-info,
-body.iter-1 .results-count{display:none !important;}
+body.iter-1 .results-count,
+/* Iter 1 keeps the Min / Max input fields but drops the dual-thumb slider above them */
+body.iter-1 .price-slider{display:none !important;}
 body.iter-1 .grid{padding-top:16px;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
 html,body{height:100%;}
@@ -3011,19 +3013,10 @@ body{
     {id:'price-desc', label:'Price high to low',  desc:'', count:TOTAL_RESULTS},
   ];
   const sortOptionsIter2 = filters.sort.options.slice();
-  // Price filter per iteration: iter 1 uses a multi-select list of predefined ranges
-  // instead of the dual-thumb slider.
-  const priceConfigIter1 = {
-    title:'Price', mode:'multi',
-    options:[
-      {id:'price-0-25',    label:'Under €25',    count:48},
-      {id:'price-25-50',   label:'€25 – €50',    count:124},
-      {id:'price-50-100',  label:'€50 – €100',   count:182},
-      {id:'price-100-250', label:'€100 – €250',  count:142},
-      {id:'price-250-500', label:'€250 – €500',  count:58},
-      {id:'price-500',     label:'Over €500',    count:18},
-    ],
-  };
+  // Price filter per iteration: iter 1 keeps the same Min / Max input fields as iter 2 but
+  // hides the dual-thumb slider above them (handled via CSS — see body.iter-1 .price-slider).
+  // User can only enter the range via keyboard.
+  const priceConfigIter1 = Object.assign({}, filters.price);
   const priceConfigIter2 = Object.assign({}, filters.price);
 
   function applyIteration(n){
