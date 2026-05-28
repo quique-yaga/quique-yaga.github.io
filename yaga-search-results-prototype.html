@@ -2618,8 +2618,8 @@ body{
     requestAnimationFrame(updateScrollableHint);
     // Clear-button visibility + label
     if(activeFilter === 'all'){
-      // "Filter" universal sheet — show "Clear all" when the DRAFT has any active category
-      clearBtn.textContent = 'Clear all';
+      // "Filter" universal sheet — same "Clear" label as the other sheets for consistency.
+      clearBtn.textContent = 'Clear';
       // Clear all is visible whenever any committed filter has a value OR sort differs from the default.
       // Sort always carries a value (at least the default), so we test it specifically.
       let hasDraftSelections = false;
