@@ -197,7 +197,7 @@ body{
 /* ─── Filter row — fixed height so options never shift layout ─── */
 .filter-row{
   padding:0 24px;             /* topbar's bottom padding already provides the 16px gap above the chips */
-  height:32px;                /* just the chip height — keeps the gap consistent when scrolled */
+  height:40px;                /* matches the Koos medium chip height */
   display:flex;
   gap:8px;
   overflow-x:auto;
@@ -209,8 +209,8 @@ body{
 }
 .filter-row::-webkit-scrollbar{display:none;}
 .chip{
-  height:32px;                  /* Figma chip spec */
-  padding:0 12px;
+  height:40px;                  /* Koos chip — medium variant for better tap accessibility */
+  padding:0 16px;
   border-radius:var(--radius-full);
   border:1px solid var(--neutral-300);
   background:var(--shade-00);
