@@ -1233,8 +1233,7 @@ body{
   box-shadow: 0 8px 20px -4px rgba(0,0,0,.10);
 }
 .cta{
-  flex:1;                       /* shares the row 50/50 with Apply when both are present */
-  min-width:0;
+  width:100%;
   height:48px;
   padding:0 24px;               /* vertical centering handled by flex below — keeps Apply + View results perfectly aligned */
   border:none;
@@ -1248,6 +1247,9 @@ body{
   transition:background .12s ease-out;
   display:inline-flex;align-items:center;justify-content:center;
 }
+/* When Apply + View results sit side-by-side in the sheet footer, split the row 50/50 */
+.sheet-footer .cta,
+.sheet-footer .cta-secondary{flex:1;min-width:0;width:auto;}
 .cta strong{font-weight:600;margin:0 4px;}
 
 /* Yaga tertiary button — medium size (coral pill, coral text, transparent fill).
@@ -1300,8 +1302,7 @@ body{
 /* Apply button — secondary variant per Figma (node 1075:5003).
    White fill, neutral grey 60 stroke, near-black label; matches the View results pill height. */
 .cta-secondary{
-  flex:1;                       /* shares the row 50/50 with View results when both are visible */
-  min-width:0;
+  flex-shrink:0;
   height:48px;
   padding:0 24px;               /* vertical centering handled by flex — text aligns exactly with .cta */
   border:1px solid #838791;
