@@ -2276,7 +2276,7 @@ body{
     if(children === null) return null;
     // Sheet exists for this node — record its parent (top-level wrappers point to the 'category' hub)
     catParentMap[key] = parentKey === 'cat' ? 'category' : parentKey;
-    const allOption = { id:`${key}-all`, label:`Everything in ${name.toLowerCase()}`, isAll:true, count: catCount(key+'-all') };
+    const allOption = { id:`${key}-all`, label:`All ${name.toLowerCase()}`, isAll:true, count: catCount(key+'-all') };
     if(Array.isArray(children)){
       const opts = [allOption];
       children.forEach(c => opts.push({ id:`${key}-${catSlug(c)}`, label: c, count: catCount(`${key}-${catSlug(c)}`) }));
