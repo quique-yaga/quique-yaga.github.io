@@ -35,6 +35,36 @@
   --radius-md:8px;
   --radius-lg:12px;
 }
+
+/* ─── Iteration switcher ─────────────────────── */
+.iteration-toggle{
+  position:fixed;top:16px;left:50%;transform:translateX(-50%);
+  display:flex;gap:2px;
+  background:#fff;
+  border:1px solid var(--neutral-200);
+  border-radius:9999px;
+  padding:4px;
+  z-index:1000;
+  font-family:'Roboto',sans-serif;
+  box-shadow:0 4px 12px rgba(0,0,0,.06);
+}
+.iter-btn{
+  border:none;background:transparent;
+  padding:6px 14px;
+  border-radius:9999px;
+  cursor:pointer;
+  font-family:inherit;font-size:13px;line-height:18px;font-weight:500;
+  color:var(--text-secondary);
+  transition:background .12s ease-out, color .12s ease-out;
+}
+.iter-btn.active{background:var(--text-primary);color:#fff;}
+.iter-btn:hover:not(.active){background:var(--neutral-50);}
+
+/* Iteration 1 overrides — hide every feature that's part of the v2 enhancement. */
+body.iter-1 #coachmark,
+body.iter-1 #coachmarkScrim,
+body.iter-1 .results-info{display:none !important;}
+body.iter-1 #resultsCount{visibility:hidden;}    /* count number is removed in iter 1 */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
 html,body{height:100%;}
 body{
@@ -1237,6 +1267,14 @@ body{
 <body>
 
   <!-- ─── Phone ─────────────────────────────────── -->
+  <!-- Iteration switcher — choose which release of the design to preview on this same URL.
+       Iter 1 = MVP (no onboarding, static results count, no info link, no Relevance sort, list-based price).
+       Iter 2 = full prototype with all the niceties. -->
+  <div class="iteration-toggle" role="tablist" aria-label="Prototype iteration">
+    <button class="iter-btn active" data-iter="1" role="tab" aria-selected="true">Iteration 1</button>
+    <button class="iter-btn"        data-iter="2" role="tab" aria-selected="false">Iteration 2</button>
+  </div>
+
   <div class="phone">
     <div class="screen">
 
@@ -1634,7 +1672,8 @@ body{
   // Inline X icon — clears the chip's filter when tapped (only shown when chip has a selection)
   const chipCloseIcon = '<span class="chip-close material-symbols-rounded" aria-label="Clear" role="button">close</span>';
   // Sort is considered "modified" (active state) when the user picks anything other than the default.
-  const DEFAULT_SORT_ID = 'relevance';
+  // Sort default — Iteration 1 doesn't have "Relevance", so default falls back to "Newest first".
+  let DEFAULT_SORT_ID = 'relevance';
   // All keys that get their own chip in the Option-1 row, in their default left-to-right order.
   const allChipKeys = ['category', ...option1Keys, 'sort'];
   // True if the chip key currently has a committed selection (collapses every cat-* into 'category')
@@ -2737,6 +2776,11 @@ body{
   function updateResultsCount(){
     const el = document.getElementById('resultsCount');
     if(!el) return;
+    // Iteration 1 hides the count via CSS (visibility:hidden) — no need to compute the number.
+    if(currentIteration === 1){
+      el.textContent = '';
+      return;
+    }
     const n = combinedResultsCount();
     el.textContent = `${n.toLocaleString('en-US')} ${n === 1 ? 'result' : 'results'}`;
   }
@@ -2835,6 +2879,11 @@ body{
     sheetApply.hidden = enteredViaCategory || !(inHubSubsheet && hasDraftSelection);
     if(f && f.cta && !inHubSubsheet){
       sheetCta.textContent = f.cta;     // e.g. "Done" for Colour
+      return;
+    }
+    // Iteration 1 doesn't show the dynamic count — just "View results".
+    if(currentIteration === 1){
+      sheetCta.innerHTML = 'View results';
       return;
     }
     const n = computeCount();
@@ -2949,6 +2998,69 @@ body{
 
   setOption(1);
 
+  // ─── Iteration switcher — toggle between MVP (iter 1) and full prototype (iter 2) ───
+  let currentIteration = 1;        // populated from URL hash on load
+  const iterButtons = document.querySelectorAll('.iter-btn');
+  // Sort options per iteration: iter 1 ships without "Relevance" (default falls back to Newest).
+  const sortOptionsIter1 = [
+    {id:'newest',     label:'Newest first',       desc:'', count:TOTAL_RESULTS},
+    {id:'price-asc',  label:'Price low to high',  desc:'', count:TOTAL_RESULTS},
+    {id:'price-desc', label:'Price high to low',  desc:'', count:TOTAL_RESULTS},
+  ];
+  const sortOptionsIter2 = filters.sort.options.slice();
+  // Price filter per iteration: iter 1 uses a multi-select list of predefined ranges
+  // instead of the dual-thumb slider.
+  const priceConfigIter1 = {
+    title:'Price', mode:'multi',
+    options:[
+      {id:'price-0-25',    label:'Under €25',    count:48},
+      {id:'price-25-50',   label:'€25 – €50',    count:124},
+      {id:'price-50-100',  label:'€50 – €100',   count:182},
+      {id:'price-100-250', label:'€100 – €250',  count:142},
+      {id:'price-250-500', label:'€250 – €500',  count:58},
+      {id:'price-500',     label:'Over €500',    count:18},
+    ],
+  };
+  const priceConfigIter2 = Object.assign({}, filters.price);
+
+  function applyIteration(n){
+    currentIteration = n;
+    document.body.classList.toggle('iter-1', n === 1);
+    document.body.classList.toggle('iter-2', n === 2);
+    // Wipe any in-flight selections that don't translate cleanly between iterations
+    if(selections.price) selections.price.clear();
+    selections.priceRange = null;
+    // Swap configs
+    DEFAULT_SORT_ID = (n === 1) ? 'newest' : 'relevance';
+    filters.sort.options = (n === 1) ? sortOptionsIter1 : sortOptionsIter2;
+    selections.sort = new Set([DEFAULT_SORT_ID]);
+    filters.price = (n === 1) ? priceConfigIter1 : priceConfigIter2;
+    // Iter 1 has no onboarding — make sure the coachmark is dismissed.
+    // Iter 2 plays the coachmark the first time the user lands in it.
+    if(n === 1 && coachmark && !coachmark.hidden){
+      hideCoachmark();
+    } else if(n === 2){
+      maybeShowCoachmark();
+    }
+    // Reflect on URL so the choice is shareable
+    history.replaceState(null, '', '#iter' + n);
+    // Refresh visible state
+    iterButtons.forEach(b => {
+      const active = Number(b.dataset.iter) === n;
+      b.classList.toggle('active', active);
+      b.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    activationOrder = [];
+    rebuildChipsWithFlip();
+    updateResultsCount();
+  }
+  iterButtons.forEach(b => {
+    b.addEventListener('click', () => applyIteration(Number(b.dataset.iter)));
+  });
+  // Read URL hash on load — default to iter 1 (the MVP)
+  const initialIter = /iter\s*2/i.test(location.hash) ? 2 : 1;
+  applyIteration(initialIter);
+
   // ─── Coachmark for the save-search feature ───────────────────
   // TESTING MODE: always show on every page load (ignore the localStorage "seen" flag)
   // so the tooltip can be demoed without needing to clear storage between visits.
@@ -2978,7 +3090,15 @@ body{
     coachmarkScrim.hidden = true;
     screenEl.classList.remove('coachmark-open');
   }
-  showCoachmark();
+  // The coachmark is part of Iteration 2's onboarding — only ever runs in iter 2 and at most once
+  // per page load (so toggling between iterations doesn't keep replaying it).
+  let coachmarkShownOnce = false;
+  function maybeShowCoachmark(){
+    if(coachmarkShownOnce) return;
+    if(!document.body.classList.contains('iter-2')) return;
+    coachmarkShownOnce = true;
+    showCoachmark();
+  }
   coachmarkBtn.addEventListener('click', hideCoachmark);
   // Tapping the dimmed background also dismisses, matching the rest of the prototype's sheet pattern
   coachmarkScrim.addEventListener('click', hideCoachmark);
