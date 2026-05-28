@@ -60,11 +60,14 @@
 .iter-btn.active{background:var(--text-primary);color:#fff;}
 .iter-btn:hover:not(.active){background:var(--neutral-50);}
 
-/* Iteration 1 overrides — hide every feature that's part of the v2 enhancement. */
+/* Iteration 1 overrides — hide every feature that's part of the v2 enhancement.
+   The results-count row is collapsed entirely; the grid picks up the 16 px gap above the
+   first row of thumbnails (matching the gap between the search bar and the chips). */
 body.iter-1 #coachmark,
 body.iter-1 #coachmarkScrim,
-body.iter-1 .results-info{display:none !important;}
-body.iter-1 #resultsCount{visibility:hidden;}    /* count number is removed in iter 1 */
+body.iter-1 .results-info,
+body.iter-1 .results-count{display:none !important;}
+body.iter-1 .grid{padding-top:16px;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
 html,body{height:100%;}
 body{
