@@ -2359,7 +2359,9 @@ body{
     sheetTitle.textContent = f.title;
     sheet.dataset.mode = f.mode;
     sheet.dataset.hasSubtitle = !!f.subtitle;
-    sheet.dataset.noCta = !!f.noCta;
+    // Sort normally auto-commits on tap (noCta), but when entered from the Filter hub we want
+    // the standard Apply / View results buttons so it behaves like every other filter sub-sheet.
+    sheet.dataset.noCta = !!f.noCta && !fromHub;
     sheet.dataset.searchable = !!f.searchable;
     sheet.dataset.variant = f.variant || '';
     sheet.dataset.filterKey = key;
@@ -2721,8 +2723,9 @@ body{
     }
     renderSheetList();
     updateCta();
-    // Single-select sheets with no CTA (Sort) commit and close on tap
-    if(f.mode === 'single' && f.noCta){
+    // Single-select sheets with no CTA (Sort) commit and close on tap — but only when opened
+    // standalone (via the Sort chip). When opened from the Filter hub the buttons handle commit.
+    if(f.mode === 'single' && f.noCta && !sheet.classList.contains('from-hub')){
       commitSheet();
     }
   }
