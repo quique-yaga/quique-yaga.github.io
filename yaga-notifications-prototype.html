@@ -250,6 +250,55 @@
 
   /* Bottom padding so the last row breathes */
   .section:last-child { padding-bottom: 24px; }
+
+  /* ============== Toast ============== */
+  .toast {
+    position: absolute;
+    left: 50%;
+    bottom: 32px;
+    transform: translate(-50%, 16px);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 10px 10px 20px;
+    background: #171413;
+    color: #FFFFFF;
+    border-radius: 9999px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease-out, transform 200ms ease-out;
+    z-index: 100;
+    white-space: nowrap;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    pointer-events: auto;
+  }
+  .toast-close {
+    width: 28px;
+    height: 28px;
+    border: 0;
+    padding: 0;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.12);
+    color: #FFFFFF;
+    transition: background 120ms ease-out;
+  }
+  .toast-close:hover { background: rgba(255, 255, 255, 0.22); }
+  .toast-close .material-symbols-outlined {
+    font-size: 18px;
+    color: #FFFFFF;
+  }
 </style>
 </head>
 <body>
@@ -364,8 +413,38 @@
     </section>
 
     </div><!-- /scrollable -->
+
+    <!-- Toast -->
+    <div class="toast" id="toast" role="status" aria-live="polite">
+      <span>Changes saved!</span>
+      <button class="toast-close" onclick="hideToast()" aria-label="Dismiss">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
   </div><!-- /screen -->
 </div><!-- /phone -->
+
+<script>
+  let toastTimer;
+  function showToast() {
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+  function hideToast() {
+    document.getElementById('toast').classList.remove('show');
+    clearTimeout(toastTimer);
+  }
+  // Wire every toggle: state flip + toast
+  document.querySelectorAll('.toggle').forEach(t => {
+    t.addEventListener('click', (e) => {
+      // The inline onclick already flips .on; this listener fires the toast.
+      showToast();
+    });
+  });
+</script>
 
 </body>
 </html>
