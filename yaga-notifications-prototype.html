@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..700,0..1,0&display=block" rel="stylesheet">
 <style>
   :root {
     /* Figma tokens (file: Yaga-Team-Neue, node 18663:5593) */
@@ -251,52 +252,77 @@
   /* Bottom padding so the last row breathes */
   .section:last-child { padding-bottom: 24px; }
 
-  /* ============== Toast ============== */
+  /* ============== Toast (matches yaga-search-results pattern) ============== */
   .toast {
     position: absolute;
-    left: 50%;
-    bottom: 32px;
-    transform: translate(-50%, 16px);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 10px 10px 20px;
+    left: 16px;
+    right: 16px;
+    bottom: 24px;
     background: #171413;
     color: #FFFFFF;
-    border-radius: 9999px;
-    font-family: var(--font);
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 20px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    border-radius: 14px;
+    z-index: 30;
     opacity: 0;
+    transform: translateY(120%);
+    transition: opacity 0.2s ease-out, transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    overflow: visible;
     pointer-events: none;
-    transition: opacity 200ms ease-out, transform 200ms ease-out;
-    z-index: 100;
-    white-space: nowrap;
   }
   .toast.show {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translateY(0);
     pointer-events: auto;
   }
+  .toast-body {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+  }
+  .toast-icon {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .toast-icon .material-symbols-rounded {
+    font-size: 16px;
+    color: #4ADE80;
+    font-variation-settings: "FILL" 0, "wght" 600, "GRAD" 0, "opsz" 24;
+  }
+  .toast-text {
+    flex: 1 1 0;
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 20px;
+    color: #FFFFFF;
+  }
   .toast-close {
+    flex-shrink: 0;
     width: 28px;
     height: 28px;
     border: 0;
-    padding: 0;
-    border-radius: 9999px;
-    display: flex;
+    background: transparent;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    color: rgba(255, 255, 255, 0.72);
     cursor: pointer;
-    background: rgba(255, 255, 255, 0.12);
-    color: #FFFFFF;
-    transition: background 120ms ease-out;
+    border-radius: 50%;
+    padding: 0;
+    transition: background 0.12s ease-out, color 0.12s ease-out;
   }
-  .toast-close:hover { background: rgba(255, 255, 255, 0.22); }
-  .toast-close .material-symbols-outlined {
+  .toast-close .material-symbols-rounded {
     font-size: 18px;
+    color: inherit;
+    font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
+  }
+  .toast-close:hover {
+    background: rgba(255, 255, 255, 0.12);
     color: #FFFFFF;
   }
 </style>
@@ -416,10 +442,15 @@
 
     <!-- Toast -->
     <div class="toast" id="toast" role="status" aria-live="polite">
-      <span>Changes saved!</span>
-      <button class="toast-close" onclick="hideToast()" aria-label="Dismiss">
-        <span class="material-symbols-outlined">close</span>
-      </button>
+      <div class="toast-body">
+        <span class="toast-icon">
+          <span class="material-symbols-rounded">check</span>
+        </span>
+        <span class="toast-text">Changes saved!</span>
+        <button class="toast-close" onclick="hideToast()" aria-label="Close">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
     </div>
 
   </div><!-- /screen -->
